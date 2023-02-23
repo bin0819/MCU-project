@@ -45,7 +45,8 @@ This homework is to propose an innovative project and describe the key features,
 ![](https://github.com/bin0819/MCU-project/blob/main/images/Boston-Dynamics_Spot.jpg?raw=true)
 
 ### 參考影片
-<iframe width="1239" height="697" src="https://www.youtube.com/embed/BcQLoXKdmgo" title="波士頓動力機器狗 裝備「機械爪」全面進化－民視新聞" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="1239" height="697" src="https://www.youtube.com/embed/UAG_FBZJVJ8" title="Unbelievable  Robot Dance by Boston dynamics" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ---
 ## Market Analysis (市場分析)
 ![](https://blog.hubspot.com/hs-fs/hubfs/tam-sam-som.png?width=1200&name=tam-sam-som.png)
