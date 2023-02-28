@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Innovative Project Proposal
-author: [Richard Kuo]
+author: [wenbin tsai]
 category: [Lecture]
 tags: [jekyll, ai]
 ---
