@@ -51,7 +51,7 @@ This homework is to propose an innovative project and describe the key features,
 9. 任務規劃控制: Mission Planner with Floorplan
 
 ### 系統方塊圖
-![](https://github.com/rkuo2000/MCU-course/blob/main/images/dog.jpg?raw=true)
+![](https://github.com/bin0819/MCU-project/blob/main/images/FDOG.jpg?raw=true)
 
 ### 參考圖片
 ![](https://github.com/bin0819/MCU-project/blob/main/images/Boston-Dynamics_Spot.jpg?raw=true)
