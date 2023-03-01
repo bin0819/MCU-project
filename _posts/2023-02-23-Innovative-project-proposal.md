@@ -84,7 +84,7 @@ The Target Market size (TAM) of Future Home Products is the number of household.
 * [Number of households in the U.S. from 1960 to 2021(in millions)](https://www.statista.com/statistics/183635/number-of-households-in-the-us/)<br>
 * [The average American household consisted of 2.51 people in 2021.](https://www.statista.com/statistics/183648/average-size-of-households-in-the-us/)<br>
 
-<br>
+<br> 
 <br>
 
 *This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
