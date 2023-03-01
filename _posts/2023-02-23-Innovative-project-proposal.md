@@ -53,8 +53,11 @@ This homework is to propose an innovative project and describe the key features,
 ### 系統方塊圖
 ![](https://github.com/bin0819/MCU-project/blob/main/images/FDOG.jpg?raw=true)
 
-### 參考圖片
+### 參考圖片1
 ![](https://github.com/bin0819/MCU-project/blob/main/images/Boston-Dynamics_Spot.jpg?raw=true)
+
+### 參考圖片2
+![](https://github.com/bin0819/MCU-project/blob/main/images/C290fab68ddc8365ff3e4139142ae1e2.jpg?raw=true)
 
 ### 參考影片
 <iframe width="1239" height="697" src="https://www.youtube.com/embed/UAG_FBZJVJ8" title="Unbelievable  Robot Dance by Boston dynamics" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
