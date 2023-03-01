@@ -59,9 +59,14 @@ This homework is to propose an innovative project and describe the key features,
 ### 參考圖片2
 ![](https://github.com/bin0819/MCU-project/blob/main/images/C290fab68ddc8365ff3e4139142ae1e2.jpg?raw=true)
 
-### 參考影片
+### 參考影片1
 <iframe width="1239" height="697" src="https://www.youtube.com/embed/UAG_FBZJVJ8" title="Unbelievable  Robot Dance by Boston dynamics" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
+### 參考影片2
+<iframe width="853" height="480" src="https://www.youtube.com/embed/sbT0A7TsUJo" title="Robot Dog meets Real Dog  // Scrappy&#39;s Adventures" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+### 參考影片3
+<iframe width="853" height="480" src="https://www.youtube.com/embed/ZXKhgC6LsjQ" title="Boston Dynamics @IMTS 2022" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 ---
 ## Market Analysis (市場分析)
 ![](https://blog.hubspot.com/hs-fs/hubfs/tam-sam-som.png?width=1200&name=tam-sam-som.png)
