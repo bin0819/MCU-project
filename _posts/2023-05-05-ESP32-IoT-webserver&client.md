@@ -40,7 +40,7 @@ This homework is to propose robot car, list all Design Considerations and the re
 
 
 ### 系統方塊圖
-![](https://github.com/bin0819/MCU-project/blob/main/images/AA444.JPG?raw=true)
+![](https://github.com/bin0819/MCU-project/blob/main/images/AA8888.jpg?raw=true)
 
 ### 成品
 
