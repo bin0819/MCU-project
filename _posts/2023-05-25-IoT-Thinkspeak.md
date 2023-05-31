@@ -32,18 +32,18 @@ This homework is to propose robot car, list all Design Considerations and the re
 5. 程式碼
 
 ### 應用功能說明
-將手指按在MAX30102 PPG sensor上，顯示螢幕會出現血氧與心跳指數
+將DHT11感測的溫度與濕度藉由WiFi上傳至Thinkspeak.com上，並將其繪製成圖表
 
 ### 所需相關物件：
 1. ESP32
 2. 傳輸線
-3. DHT11:感測血氧與心跳
-4. 顯示螢幕SSD 1306:顯示血氧與心跳
+3. DHT11:感測溫度與濕度
+
 
 
 
 ### 系統方塊圖
-![](https://github.com/bin0819/MCU-project/blob/main/images/A2222.jpg?raw=true)
+![](https://github.com/bin0819/MCU-project/blob/main/images/B111111.jpg?raw=true)
 ### Thinkspeak.com
 ![](https://github.com/bin0819/MCU-project/blob/main/images/B111.jpg?raw=true)
 ### 成品
