@@ -45,8 +45,6 @@ This homework is to propose robot car, list all Design Considerations and the re
 ![](https://github.com/bin0819/MCU-project/blob/main/images/B111111.jpg?raw=true)
 ### Thinkspeak.com
 ![](https://github.com/bin0819/MCU-project/blob/main/images/B111.png?raw=true)
-
-
 ### 成品
 ![](https://github.com/bin0819/MCU-project/blob/main/images/B1111.jpg?raw=true)
 
