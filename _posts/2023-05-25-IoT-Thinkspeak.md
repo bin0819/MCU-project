@@ -7,7 +7,6 @@ tags: [jekyll, ai]
 ---
 
 
-
 This homework is to propose robot car, list all Design Considerations and the required technologies, then draw the System Block Diagram.
 
 ---
