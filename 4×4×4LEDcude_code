@@ -1,0 +1,937 @@
+---
+layout: post
+title: 4×4×4LEDcude
+author: [Tisa Wen Bin]
+category: [Arduino Code]
+date: [Dec.24.2023]
+---
+## 玩法
+以藍芽傳輸1~18，控制18種模式
+
+## 互動方式
+1.自行改變圖型
+2.轉動可變電阻
+2.隨著聲音大小律動
+3.搖桿控制
+
+---
+
+```
+
+#include <SoftwareSerial.h>   
+#define CUBE_SIZE 4
+#define PLANE_SIZE CUBE_SIZE*CUBE_SIZE
+#define PLANE_TIME 20
+#define LED_TIME 100
+#define BUTTON_PIN 2
+#define RESIST_PIN A12
+#define SOUND_PIN A4
+int currentEffect = 0;
+int TOTAL_EFFECTS = 8;
+int LEDPin[] = {24, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, A0, A1, A2 , A3};
+int PlanePin[] = {A8, A9, A10, A11};
+int pin;
+int casetype;
+int spincube_q=0;
+int rand_all_K = 1;
+int rand_all_K_inv = 0;
+int contr_xPin = A5;
+int contr_xPin2 = A15;
+int contr_yPin = A6;  
+int contr_zPin = A7;  
+int contr_xval = 0;    
+int contr_yval = 0;    
+int contr_zval = 0; 
+int control_z = 1;  
+int contr_now_x = 2;
+int contr_now_y = 2;
+bool spincube_updowm = true;
+bool spin_first;
+bool Serial_first;
+int randall[64];
+int control[4][4]; 
+int spinPin1[6][16]={
+          {0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0},
+          {0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0},
+          {0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0},
+          {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1},
+          {0,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0},
+          {0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0}};
+int happyPin[12][16]={
+    {1,0,0,1,1,1,1,1,1,0,0,1,1,0,0,1},//h
+    {1,0,0,1,1,1,1,1,0,1,1,0,0,1,1,0},//a
+    {0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1},//p
+    {0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,1},//p
+    {0,1,1,0,0,1,1,0,1,1,1,1,1,0,0,1},//y
+    {1,0,0,1,0,1,0,1,0,0,1,1,1,0,0,1},//n
+    {1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1},//e
+    {0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,1},//w
+    {0,1,1,0,0,1,1,0,0,1,1,0,1,0,0,1},//y
+    {1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1},//e
+    {1,0,0,1,1,1,1,1,0,1,1,0,0,1,1,0},//a
+    {1,0,0,1,0,1,0,1,1,1,1,1,1,1,1,1},//r
+    };
+
+SoftwareSerial BT(A13, A14); // (藍芽傳送TX),(藍芽接收RX)
+void setup()
+{
+  Serial.begin(9600);
+  BT.begin(9600);
+  for (pin = 0; pin < PLANE_SIZE; pin++) {
+    pinMode(LEDPin[pin], OUTPUT);
+    digitalWrite(LEDPin[pin], LOW);
+  }
+  for (pin = 0; pin < CUBE_SIZE; pin++) {
+    pinMode(PlanePin[pin], OUTPUT);
+    digitalWrite(PlanePin[pin], HIGH);
+  }
+  pinMode(RESIST_PIN, INPUT);
+  pinMode(SOUND_PIN, INPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  for (int i = 0; i < 64; i++) {
+    randall[i] = 1;
+  }
+  for (int j = 0; j < 4; j++) {
+  for (int i = 0; i < 4; i++) {
+    control[j][i]=0; 
+    }
+  }
+  control[contr_now_x][contr_now_y]=1; 
+}
+
+void loop()
+{
+  if (BT.available()) {
+    casetype = BT.parseInt();
+    spin_first = true;
+  }
+  // if(Serial.available()) {
+  //   casetype = Serial.parseInt();
+  //   spin_first = true;
+  // }
+ switch (casetype) {
+    case 1:
+      Serial.println("Action for 1");
+      normal();
+      break;
+    case 2:
+      Serial.println("Action for 2");
+      resist();
+      break;
+    case 3:
+      Serial.println("Action for 3");
+      rond();
+      break;
+    case 4:
+      Serial.println("Action for 4");
+      rain();
+      break;
+    case 5:
+      Serial.println("Action for 5");
+      column();
+      break;
+    case 6:
+      Serial.println("Action for 6");
+      allcube();
+      break;
+    case 7:
+      Serial.println("Action for 7");
+      rand_all();
+      break;
+    case 8:
+      Serial.println("Action for 8");
+      bondcube();
+      break;
+    case 9:
+      Serial.println("Action for 9");
+      h_planecube();
+      break;
+    case 10:
+      Serial.println("Action for 10");
+      v_fb_planecube();
+      break;
+    case 11:
+      Serial.println("Action for 11");
+      v_rl_planecube();
+      break;
+    case 12:
+      Serial.println("Action for 12");
+      z_spincube();
+      break;
+    case 13:
+      Serial.println("Action for 13");
+      y_spincube();
+      break;
+    case 14:
+      Serial.println("Action for 14");
+      x_spincube();
+      break;
+    case 15:
+      Serial.println("Action for 15");
+      wave();
+      break;
+    case 16:
+      Serial.println("Action for 16");
+      soundcube();
+      break;
+    case 17:
+      Serial.println("Action for 17");
+      happy();
+      break;
+    case 18:
+      Serial.println("Action for 18");
+      control_cude();
+      break;
+    default:
+      Serial.println("Invalid Number");
+      break;
+  }
+// normal();
+// resist();
+// rond();
+// rain();
+// column();
+// allcube();
+// rand_all();
+// bondcube();
+// h_planecube();
+// v_fb_planecube();
+// v_rl_planecube();
+// z_spincube();
+// y_spincube();
+// x_spincube();
+// wave();
+// soundcube();
+// happy();
+// control_cude();
+}
+
+void ClaerCube() {
+    for (pin = 0; pin < PLANE_SIZE; pin++) {
+    digitalWrite(LEDPin[pin], LOW);
+  }
+    for (pin = 0; pin < CUBE_SIZE; pin++) {
+    digitalWrite(PlanePin[pin], HIGH);
+  }
+}
+
+void normal() {
+  ClaerCube();
+    for (int plane = 0; plane < CUBE_SIZE; plane++)
+    {
+      digitalWrite(PlanePin[plane], LOW);
+      for (int led = 0; led < PLANE_SIZE; led++)
+      {
+        digitalWrite(LEDPin[led], HIGH);
+        delay(LED_TIME);
+        digitalWrite(LEDPin[led], LOW);
+      }
+      digitalWrite(PlanePin[plane], HIGH);
+      delay(PLANE_TIME);
+    }
+}
+
+void resist() {
+  int resist_read = analogRead(RESIST_PIN);
+  for (int i = 0; i < 64; i++) {
+    if(16*i < resist_read && resist_read < 16*(i+1)){
+      ClaerCube();
+      digitalWrite(LEDPin[i%16], HIGH);
+      if(i<16)
+        digitalWrite(PlanePin[0], LOW);
+      else if(15<i && i<32)
+        digitalWrite(PlanePin[1], LOW);
+      else if(31<i && i<48)
+        digitalWrite(PlanePin[2], LOW);
+      else if(47<i && i<64)
+        digitalWrite(PlanePin[3], LOW);
+      else
+        ClaerCube();
+      delay(100);
+      
+    }
+  }
+}
+
+void rond() {
+  randomSeed(analogRead(0));
+  int rond_led = random(0, 64);
+  int layer_led =rond_led % 16;
+  int layer =floor(rond_led/16);
+  ClaerCube();
+  digitalWrite(LEDPin[layer_led], HIGH);
+  digitalWrite(PlanePin[layer], LOW);
+  randomSeed(analogRead(0));
+  delay(random(20, 101));
+
+}
+
+void rain() {
+  ClaerCube();
+  // int rain_n = random(0, 2);
+  int rain_n = 0;
+  if(rain_n == 0){
+    randomSeed(analogRead(0));
+    int down = random(0, 16);
+    ClaerCube();
+    digitalWrite(LEDPin[down], HIGH);
+    digitalWrite(PlanePin[3], LOW);
+    delay(70);
+    digitalWrite(PlanePin[3], HIGH);
+    digitalWrite(PlanePin[2], LOW);
+    delay(70);
+    digitalWrite(PlanePin[2], HIGH);
+    digitalWrite(PlanePin[1], LOW);
+    delay(70);
+    digitalWrite(PlanePin[1], HIGH);
+    digitalWrite(PlanePin[0], LOW);
+    delay(70);
+  }
+  
+}
+
+void column() {
+  ClaerCube();
+  delay(90);
+  int columnPin1[16]={1,2,3,4,8,12,16,15,14,13,9,5,6,7,11,10};
+  int columnPin2[16]={16,15,14,13,9,5,1,2,3,4,8,12,11,10,6,7};
+  for (int i = 0; i < 4; i++) {
+  digitalWrite(PlanePin[i], LOW);
+  }
+  digitalWrite(LEDPin[columnPin1[0]-1], HIGH);
+  delay(90);
+  for (int i = 1; i < 16; i++) {
+    digitalWrite(LEDPin[columnPin1[i-1]-1], LOW);
+    digitalWrite(LEDPin[columnPin1[i]-1], HIGH);
+    delay(90);
+  }
+  digitalWrite(LEDPin[columnPin1[15]-1], LOW);
+  delay(90);
+
+  digitalWrite(LEDPin[columnPin2[15]-1], HIGH);
+  delay(90);
+  for (int i = 14; i >= 0; i--) {
+    digitalWrite(LEDPin[columnPin2[i+1]-1], LOW);
+    digitalWrite(LEDPin[columnPin2[i]-1], HIGH);
+    delay(90);
+  }
+  digitalWrite(LEDPin[columnPin1[0]-1], LOW);
+  delay(90);
+  ClaerCube();
+}
+
+void allcube() {
+  ClaerCube();
+  
+  for (int i = 0; i < 4; i++) {
+  digitalWrite(PlanePin[i], LOW);
+    for (int i = 0; i < 16; i++) {
+    digitalWrite(LEDPin[i], HIGH);
+    delayMicroseconds(100);
+    digitalWrite(LEDPin[i], LOW);
+    }
+    digitalWrite(PlanePin[i], HIGH);
+  }
+}
+
+void bondcube() {
+  ClaerCube();
+  for (int k = 0; k < 2; k++) {
+  unsigned long previousMillis = millis();
+    thetop:
+    for (int j = 0; j < 4; j++) {
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 0; i < 16; i++) {
+        int bondPin1[16]={1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1};
+        int bondPin2[16]={1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1};
+        if(bondPin1[i]==1 && (j==0||j==3) && k==0){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+        if(bondPin2[i]==1 && (j==1||j==2) && k==0){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+        if(bondPin1[i]==0 && (j==1||j==2) && k==1){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 200) {
+      ClaerCube();
+    }else{
+      goto thetop;
+    }
+  }
+}
+
+void h_planecube() {
+  ClaerCube();
+  for (int j = 0; j < 4; j++) {
+    unsigned long previousMillis = millis();
+    thetop1:
+    digitalWrite(PlanePin[j], LOW);
+    for (int i = 0; i < 16; i++) {
+        digitalWrite(LEDPin[i], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[i], LOW);
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 150) {
+      ClaerCube();
+    }else{
+      goto thetop1;
+    }
+    // digitalWrite(PlanePin[j], HIGH);
+  }
+
+  for (int j = 3; j >= 0; j--) {
+    unsigned long previousMillis = millis();
+    thetop2:
+    digitalWrite(PlanePin[j], LOW);
+    for (int i = 0; i < 16; i++) {
+        digitalWrite(LEDPin[i], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[i], LOW);
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 150) {
+      ClaerCube();
+    }else{
+      goto thetop2;
+    }
+    // digitalWrite(PlanePin[j], HIGH);
+  }
+}
+
+void v_fb_planecube() {
+  ClaerCube();
+  for (int k = 0; k < 4; k++) {  
+    unsigned long previousMillis = millis();
+    thetop3:
+    for (int j = 0; j < 4; j++) {
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 4*k; i < 4*(k+1); i++) {
+        digitalWrite(LEDPin[i], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[i], LOW);
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+    unsigned long currentMillis = millis();
+      if (currentMillis - previousMillis >= 100) {
+        ClaerCube();
+      }else{
+        goto thetop3;
+      }
+  }
+  for (int k = 3; k >= 0; k--) {  
+    unsigned long previousMillis = millis();
+    thetop4:
+    for (int j = 0; j < 4; j++) {
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 4*k; i < 4*(k+1); i++) {
+        digitalWrite(LEDPin[i], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[i], LOW);
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+    unsigned long currentMillis = millis();
+      if (currentMillis - previousMillis >= 100) {
+        ClaerCube();
+      }else{
+        goto thetop4;
+      }
+  }
+}
+
+void v_rl_planecube() {
+  ClaerCube();
+  int rl_Pin[4] = { 0, 4, 8, 12};
+  for (int k = 0; k < 4; k++) {  
+    unsigned long previousMillis = millis();
+    thetop3:
+    for (int j = 0; j < 4; j++) {
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 0; i < 4; i++) {
+        digitalWrite(LEDPin[rl_Pin[i]+k], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[rl_Pin[i]+k], LOW);
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+    unsigned long currentMillis = millis();
+      if (currentMillis - previousMillis >= 100) {
+        ClaerCube();
+      }else{
+        goto thetop3;
+      }
+  }
+  for (int k = 3; k >= 0; k--) {  
+    unsigned long previousMillis = millis();
+    thetop4:
+    for (int j = 0; j < 4; j++) {
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 0; i < 4; i++) {
+        digitalWrite(LEDPin[rl_Pin[i]+k], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[rl_Pin[i]+k], LOW);
+      }
+      // digitalWrite(PlanePin[j], HIGH);
+    }
+    unsigned long currentMillis = millis();
+      if (currentMillis - previousMillis >= 100) {
+        ClaerCube();
+      }else{
+        goto thetop4;
+      }
+  }
+}
+
+void z_spincube() {
+  if(spin_first){
+    spincube_q = 0;
+    spin_first = false;
+  }
+  ClaerCube();
+  for (int k = 0; k < 6; k++) {
+  unsigned long previousMillis = millis();
+    thetop5:
+    for (int j = 0; j < 4; j++) {
+      if(j <= spincube_q){
+        digitalWrite(PlanePin[j], LOW);
+      }
+      for (int i = 0; i < 16; i++) {
+        if(spinPin1[k][i]==1){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 80) {
+      ClaerCube();
+    }else{
+      goto thetop5;
+    }
+  }
+  if(spincube_updowm)
+    spincube_q++;
+  else
+    spincube_q--;
+  
+  if(spincube_q==4){
+    spincube_updowm=false;
+    spincube_q=3;
+    }
+  else if(spincube_q==-1){
+    spincube_updowm=true;
+    spincube_q=0;
+  }
+}
+
+void y_spincube() {
+  if(spin_first){
+    spincube_q = 0;
+    spin_first = false;
+  }  
+  ClaerCube();
+  // delay(50);
+  for (int m = 0; m < 6; m++) {
+    int spincube_Pin[4] = { 0, 4, 8, 12};
+    unsigned long previousMillis = millis();
+    thetop6:
+    for (int k = 0; k < 4; k++) {
+      for (int j = 0; j < 4; j++) {
+        digitalWrite(PlanePin[j], LOW);
+        for (int i = 0; i < 4; i++) {
+          if(spinPin1[m][4*j+i]==1 && k<=spincube_q){
+            digitalWrite(LEDPin[spincube_Pin[i]+k], HIGH);
+            delayMicroseconds(100);
+            digitalWrite(LEDPin[spincube_Pin[i]+k], LOW);
+          }
+        }
+        digitalWrite(PlanePin[j], HIGH);
+      }
+    }  
+    unsigned long currentMillis = millis();
+      if (currentMillis - previousMillis >= 100) {
+        ClaerCube();
+      }else{
+        goto thetop6;
+      }
+  }
+  if(spincube_updowm)
+    spincube_q++;
+  else
+    spincube_q--;
+  
+  if(spincube_q==4){
+    spincube_updowm=false;
+    spincube_q=3;
+    }
+  else if(spincube_q==-1){
+    spincube_updowm=true;
+    spincube_q=0;
+  }
+}
+
+void x_spincube() {
+  if(spin_first){
+    spincube_q = 0;
+    spin_first = false;
+  }
+  ClaerCube();
+  for (int m = 0; m < 6; m++) {
+    unsigned long previousMillis = millis();
+    thetop7:
+    for (int k = 0; k < 4; k++) {  
+      for (int j = 0; j < 4; j++) {
+        digitalWrite(PlanePin[j], LOW);
+        for (int i = 0; i < 4; i++) {
+          if(spinPin1[m][4*j+i]==1 && k<=spincube_q){
+            digitalWrite(LEDPin[i+4*k], HIGH);
+            delayMicroseconds(100);
+            digitalWrite(LEDPin[i+4*k], LOW);
+          }
+        }
+        digitalWrite(PlanePin[j], HIGH);
+      }
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 100) {
+      ClaerCube();
+    }else{
+      goto thetop7;
+    }
+  }
+  if(spincube_updowm)
+    spincube_q++;
+  else
+    spincube_q--;
+  
+  if(spincube_q==4){
+    spincube_updowm=false;
+    spincube_q=3;
+    }
+  else if(spincube_q==-1){
+    spincube_updowm=true;
+    spincube_q=0;
+  }
+}
+
+void wave1() {
+  ClaerCube();
+  for(int m = 0; m < 4; m++){
+    unsigned long previousMillis = millis();
+    thetop8:
+    digitalWrite(PlanePin[m], LOW);
+    for (int j = 0; j < 4; j++) {
+      for (int i = 0; i < 4; i++) {
+        if(i+j==0 ||  i+j==6)
+          digitalWrite(LEDPin[i*4+j], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i*4+j], LOW);
+      }
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 100) {
+      ClaerCube();
+    }else{
+      goto thetop8;
+    }
+
+    digitalWrite(PlanePin[m], HIGH);
+
+  }
+}
+
+void wave() {
+  ClaerCube();
+  int wavePin[4][16]={
+  {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}, //0 1 2 3 2 1
+  {0,1,0,0,1,0,0,0,0,0,0,1,0,0,1,0}, //1 2 3 2 1 0
+  {0,0,1,0,0,1,0,1,1,0,1,0,0,1,0,0}, //2 3 2 1 0 1
+  {0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0}};//3 2 1 0 1 2
+  int wavetype[6][4]={
+    {0,1,2,3},
+    {1,2,3,2},
+    {2,3,2,1},
+    {3,2,1,0},
+    {2,1,0,1},
+    {1,0,1,2}};
+  for(int m = 0; m < 6; m++) {
+    unsigned long previousMillis = millis();
+    thetop9:
+    for (int j = 0; j < 4; j++) {
+    digitalWrite(PlanePin[j], LOW);  
+      for (int i = 0; i < 16; i++) {
+        for (int k = 0; k < 4; k++) {
+          if(wavePin[k][i]==1 && j==wavetype[m][k]){
+            digitalWrite(LEDPin[i], HIGH);
+            delayMicroseconds(100);
+            digitalWrite(LEDPin[i], LOW);
+          }
+        }
+      }
+    digitalWrite(PlanePin[j], HIGH);  
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 125) {
+      ClaerCube();
+    }else{
+      goto thetop9;
+    }
+  }
+}
+
+void soundcube() {
+  int sound_value = analogRead(SOUND_PIN);
+  int sound_amp = map(sound_value,200,800,0,1023);
+  int sound_amp_limit = constrain(sound_amp, 0, 1023);
+  int sound_type = sound_amp_limit/16;//0~63
+  int sound_PIN = sound_type%16;//0~15
+  int sound_Plane = sound_type/16;//0~3
+  // Serial.println(sound_amp_limit);
+  ClaerCube();
+  unsigned long previousMillis = millis();
+  thetop10:
+  for (int j = 0; j < 4; j++) {
+    if(j==sound_Plane){
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 0; i < sound_PIN; i++) {
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+    if(j<sound_Plane){
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 0; i < 16; i++) {
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+  }
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= 125) {
+    ClaerCube();
+  }else{
+    goto thetop10;
+  }
+}
+
+void happy() {
+  ClaerCube();
+  
+  for (int m = 0; m < 12; m++) {
+    for (int k = 0; k < 4; k++) {  
+      unsigned long previousMillis = millis();
+      thetop11:
+      for (int j = 0; j < 4; j++) {
+        digitalWrite(PlanePin[j], LOW);
+        for (int i = 0; i < 4; i++) {
+          if(happyPin[m][4*j+i]==1){
+            digitalWrite(LEDPin[i+k*4], HIGH);
+            delayMicroseconds(100);
+            digitalWrite(LEDPin[i+k*4], LOW);
+          }
+        }
+        digitalWrite(PlanePin[j], HIGH);
+      }
+      unsigned long currentMillis = millis();
+        if (currentMillis - previousMillis >= 300) {
+          ClaerCube();
+        }else{
+          goto thetop11;
+        }
+    }
+  }
+for (int m = 0; m < 3; m++) {
+  ClaerCube();
+  for (int j = 0; j < 3; j++) {
+    unsigned long previousMillis = millis();
+    thetop12:
+    digitalWrite(PlanePin[j], LOW);
+    for (int i = 0; i < 16; i++) {
+        if(i==6||i==7||i==9||i==10)
+        digitalWrite(LEDPin[i], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[i], LOW);
+    }
+    digitalWrite(PlanePin[j], HIGH);
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 120) {
+      ClaerCube();
+    }else{
+      goto thetop12;
+    }
+  }
+
+  for (int k = 0; k < 2; k++) {
+  unsigned long previousMillis = millis();
+    thetop13:
+    for (int j = 0; j < 4; j++) {
+      digitalWrite(PlanePin[j], LOW);
+      for (int i = 0; i < 16; i++) {
+        int bondPin1[16]={1,1,1,1,1,0,0,1,1,0,0,1,1,1,1,1};
+        int bondPin2[16]={1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1};
+        if(bondPin1[i]==0 && (j==0||j==3) && k==0){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+        if(bondPin2[i]==0 && (j==1||j==2) && k==0){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+        if(bondPin1[i]==1 && (j==1||j==2) && k==1){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+        if((j==0||j==3) && k==1){
+          digitalWrite(LEDPin[i], HIGH);
+          delayMicroseconds(100);
+          digitalWrite(LEDPin[i], LOW);
+        }
+      }
+      digitalWrite(PlanePin[j], HIGH);
+    }
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 200) {
+      ClaerCube();
+    }else{
+      goto thetop13;
+    }
+  }
+}
+  delay(3000);
+}
+
+void rand_all() {
+  int time;
+  randomSeed(analogRead(0));
+  unsigned long previousMillis = millis();
+  thetop14:
+  for (int j = 0; j < 4; j++) {
+    digitalWrite(PlanePin[j], LOW);
+    for (int i = j*16; i < (j+1)*16; i++) {
+      if(randall[i]==1){
+        digitalWrite(LEDPin[i%16], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[i%16], LOW);
+      }
+    }
+    digitalWrite(PlanePin[j], HIGH);
+  }
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= 100) {
+    ClaerCube();
+  }else{
+    goto thetop14;
+  }
+  thetop15:
+  int randomPin = random(0, 64);
+  if(time==350){
+    rand_all_K = rand_all_K ^ 1;
+    rand_all_K_inv = rand_all_K_inv ^ 1;
+    time=0;
+  }
+  if (randall[randomPin] == rand_all_K) {
+    randall[randomPin] = rand_all_K_inv;
+  }else{
+    time++;
+    goto thetop15;
+  }
+}
+
+void control_cude(){
+  ClaerCube();
+  contr_xval = analogRead(contr_xPin);   
+  contr_yval = analogRead(contr_yPin);   
+  contr_zval = analogRead(contr_xPin2);  
+  if(contr_zval<=50){
+    if(control_z<=2){
+      control_z++;
+    }
+    goto show;
+  }
+  if(contr_zval>=950){
+    if(control_z>=1){
+      control_z--;
+    }
+    goto show;
+  }
+  if(contr_xval>=950){
+    if(contr_now_y<=2){
+      control[contr_now_y+1][contr_now_x]=1;
+      control[contr_now_y][contr_now_x]=0;
+      goto show;
+    }
+  }
+  if(contr_xval<=50){
+    if(contr_now_y>=1){
+      control[contr_now_y-1][contr_now_x]=1;
+      control[contr_now_y][contr_now_x]=0;
+      goto show;
+    }
+  }
+  if(contr_yval>=950){
+    if(contr_now_x<=2){
+      control[contr_now_y][contr_now_x+1]=1;
+      control[contr_now_y][contr_now_x]=0;
+      goto show;
+    }
+  }
+  if(contr_yval<=50){
+    if(contr_now_x>=1){
+      control[contr_now_y][contr_now_x-1]=1;
+      control[contr_now_y][contr_now_x]=0;
+      goto show;
+    }
+  }
+  show:
+  unsigned long previousMillis = millis();
+  thetop16:
+  digitalWrite(PlanePin[control_z], LOW);
+  for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < 4; i++) {
+      if(control[j][i]==1){
+        contr_now_x=i;
+        contr_now_y=j;
+        digitalWrite(LEDPin[4*j+i], HIGH);
+        delayMicroseconds(100);
+        digitalWrite(LEDPin[4*j+i], LOW);
+      } 
+    }
+  }
+  digitalWrite(PlanePin[control_z], HIGH);
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= 150) {
+    ClaerCube();
+  }else{
+    goto thetop16;
+  }
+}
+
+```
+
+---
+
+*This site was last updated {{ site.time | date: "%B %d, %Y" }}.*
+
+
